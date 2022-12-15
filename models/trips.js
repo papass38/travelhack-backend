@@ -18,4 +18,6 @@ const tripSchema = mongoose.Schema({
 });
 
 const Trip = mongoose.model("trips", tripSchema);
+//const Step = mongoose.model("steps", stepSchema)
 module.exports = Trip;
+//module.exports = Step
