@@ -16,19 +16,26 @@ router.post("/newtrip", (req, res) => {
     User.findOne({ username: req.body.username }).then((data) => {
       if (data) {
         console.log(data._id);
-
         const newTrip = new Trip({
-          user: data._id,
+          user: req.body.user,
           destination: req.body.destination,
-          steps: [req.body.steps],
+          steps: req.body.steps,
           totalBudget: req.body.budget,
           startDate: req.body.startDate,
           endDate: req.body.endDate,
-        });
-        newTrip.save().then((data) => res.json({ result: true }));
-      }
-    });
+        })
+        
+        newTrip.save().then((data) => {
+        User.findOneAndUpdate(
+            {$push : {lastTrips : data._id}}
+        ).then((data) =>res.json({result : true}))
+      })
+    }});
   }
 });
+
+router.get("/allTrips/:username", (req, res) => {
+    User.findOne({username : req.params.username}).populate("lastTrips").then(data => res.json({result : true, data : data} ))
+})
 
 module.exports = router;

@@ -9,7 +9,7 @@ const stepSchema = mongoose.Schema({
 })
 
 const tripSchema = mongoose.Schema({
-  user : { type: mongoose.Schema.Types.ObjectId, ref: "users" } , 
+  user : String , 
   destination : String, 
   steps : [stepSchema], 
   totalBudget : String, 
