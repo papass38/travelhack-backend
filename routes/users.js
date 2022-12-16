@@ -53,4 +53,10 @@ router.post("/signin", (req, res) => {
   });
 });
 
+router.get("/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    res.json({ result: true, user: data });
+  });
+});
+
 module.exports = router;
