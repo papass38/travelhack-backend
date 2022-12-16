@@ -1,11 +1,16 @@
 var express = require("express");
 var router = express.Router();
 const fetch = require("node-fetch");
-const Trip = require("../models/trips");
+const {Trip, Step} = require("../models/trips");
 const User = require("../models/users");
-const Step = require("../models/trips");
+// const Step = require("../models/trips");
 
 const { checkBody } = require("../modules/checkBody");
+
+// route post to create user
+
+// route post to add trip to user
+// pour ça -> findOne (if async /await) user & push inside trips key OU updateOne avec .then()
 
 router.post("/newtrip", (req, res) => {
   if (
@@ -36,7 +41,7 @@ router.post("/newtrip", (req, res) => {
   }
 });
 
-router.post("/newTrip/newstep/:id", (req, res) => {
+router.post("/newTrip/:id", (req, res) => {
     const newStep = new Step({
         name : req.body.name, 
         latitude : req.body.latitude, 
