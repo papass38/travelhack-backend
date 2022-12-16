@@ -6,6 +6,7 @@ const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
+const { findOneAndUpdate } = require("../models/users");
 
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
@@ -25,7 +26,7 @@ router.post("/signup", (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
-        lastTrips : []
+        lastTrips: [],
       });
 
       newUser.save().then((newDoc) => {
@@ -60,18 +61,46 @@ router.post("/newtrip", (req, res) => {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
-        User.findOneAndUpdate(
-            {username : req.body.username},
-            {$push : {lastTrips : {
-              user: req.body.username,
-              destination: req.body.destination,
-              steps: [],
-              totalBudget: req.body.budget,
-              startDate: req.body.startDate,
-              endDate: req.body.endDate,
-            } }}
-        ).then((data) => res.json({result : true, newTrip : data }))}
-    });
+    User.findOneAndUpdate(
+      { username: req.body.username },
+      {
+        $push: {
+          lastTrips: {
+            user: req.body.username,
+            destination: req.body.destination,
+            steps: [],
+            totalBudget: req.body.budget,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+          },
+        },
+      }
+    ).then((data) => res.json({ result: true, newTrip: data }));
+  }
+});
 
+// router.post("/newtrip/newstep", (req, res) => {
+//   if (
+//     !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+//   ) {
+//     res.json({ result: false, error: "Missing or empty fields" });
+//     return;
+//   } else {
+//     findOneAndUpdate(
+//       { username: req.body.username },
+//       {
+//         $push :{
+//           lastTrips[lastTrips.length - 1].steps{
+//             name: String,
+//             latitude: String,
+//             longitude: String,
+//             mealBudget: Number,
+//             roomBudget: Number,
+//           },
+//         }
+//       }
+//     );
+//   }
+// });
 
 module.exports = router;
