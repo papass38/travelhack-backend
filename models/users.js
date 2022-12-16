@@ -30,4 +30,4 @@ username: String,
 
 
 const User = mongoose.model("users", userSchema);
-module.exports = {User};
+module.exports = User;

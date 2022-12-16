@@ -6,6 +6,7 @@ const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
+const { findOneAndUpdate } = require("../models/users");
 
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
@@ -83,5 +84,29 @@ router.get("/:username", (req, res) => {
     res.json({ result: true, user: data });
   });
 });
+
+// router.post("/newtrip/newstep", (req, res) => {
+//   if (
+//     !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+//   ) {
+//     res.json({ result: false, error: "Missing or empty fields" });
+//     return;
+//   } else {
+//     findOneAndUpdate(
+//       { username: req.body.username },
+//       {
+//         $push :{
+//           lastTrips[lastTrips.length - 1].steps{
+//             name: String,
+//             latitude: String,
+//             longitude: String,
+//             mealBudget: Number,
+//             roomBudget: Number,
+//           },
+//         }
+//       }
+//     );
+//   }
+// });
 
 module.exports = router;
