@@ -54,12 +54,6 @@ router.post("/signin", (req, res) => {
   });
 });
 
-router.get("/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
-    res.json({ result: true, user: data });
-  });
-});
-
 router.post("/newtrip", (req, res) => {
   if (
     !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
@@ -85,49 +79,74 @@ router.post("/newtrip", (req, res) => {
   }
 });
 
-router.post("/newtrip/newstep", (req, res) => {
-  if (
-    !checkBody(req.body, ["username"])
-  ) {
-    res.json({ result: false, error: "Missing or empty fields" });
-    return;
-  } else {
-    
-    User.findOne ({username: req.body.username}).then(data => {
-      console.log(data.lastTrips.length)
-      data.lastTrips[data.lastTrips.length-1].steps.push({
-        name : req.body.name, 
-        latitude : req.body.latitude, 
-        longitude : req.body.longitude, 
-        mealBudget : 10, 
-        roomBudget : 10
-      })
-    }).then(data => res.json({result : true, steps : data}))
+router.post("/newtrip/newstep", async (req, res) => {
+  const userFound = await User.findOne({ username: req.body.username });
+  console.log(userFound);
+  const tripsArray = userFound.lastTrips;
+
+  const lastTripInArray = tripsArray[tripsArray.length - 1];
+
+  lastTripInArray.steps.push({
+    name: req.body.name,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude,
+    mealBudget: req.body.mealBudget,
+    roomBudget: req.body.roomBudget,
+  });
+
+  userFound.save();
+
+  res.json({ result: true, steps: lastTripInArray });
+
+  //  //
+
+  // if (
+  //   !checkBody(req.body, ["username"])
+  // ) {
+  //   res.json({ result: false, error: "Missing or empty fields" });
+  //   return;
+  // } else {
+
+  //   let index = 0;
+  //   User.findOne({ username: req.body.username })
+  //     .then((data) => {
+  //       index = data.lastTrips.length;
+  //       User.update({username : req.body.username}, {
+  //         $push : {
+  //           "lastTrips.$.steps.index" : {
+  //             name : req.body.name,
+  //             latitude : req.body.latitude,
+  //             longitude : req.body.longitude,
+  //             mealBudget : req.body.mealBudget,
+  //             roomBudget : req.body.roomBudget
+  //           }
+  //         }
+  //       })
+  //     }).then(data => res.json({result : true, steps : data}))
+  //   }
+});
+
+router.get("/newtrip/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    if (!data) {
+      res.json({ result: false, error: "user not found" });
+    } else {
+      res.json({
+        result: true,
+        newTrip: data.lastTrips[data.lastTrips.length - 1],
+      });
     }
-  })
+  });
+});
 
-  router.get("/newtrip/:username", (req, res) =>{
-    User.findOne({username : req.params.username}).then(data => {
-      if(!data){
-        res.json({result : false, error : 'user not found'})
-      }
-      else{
-
-        res.json({result : true, newTrip : data.lastTrips[data.lastTrips.length -1]})
-      }
-    })
-  })
-
-  router.get("/alltrips/:username", (req, res) =>{
-    User.findOne({username : req.params.username}).then(data => {
-      if(!data){
-        res.json({result : false, error : 'user not found'})
-      }
-      else{
-        res.json({result : true, trips : data.lastTrips})
-      }
-    })
-  })
-
+router.get("/alltrips/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    if (!data) {
+      res.json({ result: false, error: "user not found" });
+    } else {
+      res.json({ result: true, trips: data.lastTrips });
+    }
+  });
+});
 
 module.exports = router;
