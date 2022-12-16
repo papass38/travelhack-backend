@@ -6,6 +6,7 @@ const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
+const { findOneAndUpdate } = require("../models/users");
 
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
@@ -52,5 +53,81 @@ router.post("/signin", (req, res) => {
     }
   });
 });
+
+router.get("/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    res.json({ result: true, user: data });
+  });
+});
+
+router.post("/newtrip", (req, res) => {
+  if (
+    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+  ) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  } else {
+    User.findOneAndUpdate(
+      { username: req.body.username },
+      {
+        $push: {
+          lastTrips: {
+            user: req.body.username,
+            destination: req.body.destination,
+            steps: [],
+            totalBudget: req.body.budget,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+          },
+        },
+      }
+    ).then((data) => res.json({ result: true, newTrip: data }));
+  }
+});
+
+router.post("/newtrip/newstep", (req, res) => {
+  if (
+    !checkBody(req.body, ["username"])
+  ) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  } else {
+    
+    User.findOne ({username: req.body.username}).then(data => {
+      console.log(data.lastTrips.length)
+      data.lastTrips[data.lastTrips.length-1].steps.push({
+        name : req.body.name, 
+        latitude : req.body.latitude, 
+        longitude : req.body.longitude, 
+        mealBudget : 10, 
+        roomBudget : 10
+      })
+    }).then(data => res.json({result : true, steps : data}))
+    }
+  })
+
+  router.get("/newtrip/:username", (req, res) =>{
+    User.findOne({username : req.params.username}).then(data => {
+      if(!data){
+        res.json({result : false, error : 'user not found'})
+      }
+      else{
+
+        res.json({result : true, newTrip : data.lastTrips[data.lastTrips.length -1]})
+      }
+    })
+  })
+
+  router.get("/alltrips/:username", (req, res) =>{
+    User.findOne({username : req.params.username}).then(data => {
+      if(!data){
+        res.json({result : false, error : 'user not found'})
+      }
+      else{
+        res.json({result : true, trips : data.lastTrips})
+      }
+    })
+  })
+
 
 module.exports = router;
