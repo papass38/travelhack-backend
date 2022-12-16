@@ -60,18 +60,28 @@ router.post("/newtrip", (req, res) => {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
-        User.findOneAndUpdate(
-            {username : req.body.username},
-            {$push : {lastTrips : {
-              user: req.body.username,
-              destination: req.body.destination,
-              steps: [],
-              totalBudget: req.body.budget,
-              startDate: req.body.startDate,
-              endDate: req.body.endDate,
-            } }}
-        ).then((data) => res.json({result : true, newTrip : data }))}
-    });
+    User.findOneAndUpdate(
+      { username: req.body.username },
+      {
+        $push: {
+          lastTrips: {
+            user: req.body.username,
+            destination: req.body.destination,
+            steps: [],
+            totalBudget: req.body.budget,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+          },
+        },
+      }
+    ).then((data) => res.json({ result: true, newTrip: data }));
+  }
+});
 
+router.get("/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    res.json({ result: true, user: data });
+  });
+});
 
 module.exports = router;
