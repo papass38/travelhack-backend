@@ -54,6 +54,12 @@ router.post("/signin", (req, res) => {
   });
 });
 
+router.get("/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    res.json({ result: true, user: data });
+  });
+});
+
 router.post("/newtrip", (req, res) => {
   if (
     !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
@@ -79,23 +85,49 @@ router.post("/newtrip", (req, res) => {
   }
 });
 
-router.get("/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
-    res.json({ result: true, user: data });
-  });
-});
-
 router.post("/newtrip/newstep", (req, res) => {
   if (
-    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+    !checkBody(req.body, ["username"])
   ) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
-    findOne ({username: req.body.username}).then(data => {
-      console.log(data)
-    })
+    
+    User.findOne ({username: req.body.username}).then(data => {
+      console.log(data.lastTrips.length)
+      data.lastTrips[data.lastTrips.length-1].steps.push({
+        name : req.body.name, 
+        latitude : req.body.latitude, 
+        longitude : req.body.longitude, 
+        mealBudget : 10, 
+        roomBudget : 10
+      })
+    }).then(data => res.json({result : true, steps : data}))
     }
   })
+
+  router.get("/newtrip/:username", (req, res) =>{
+    User.findOne({username : req.params.username}).then(data => {
+      if(!data){
+        res.json({result : false, error : 'user not found'})
+      }
+      else{
+
+        res.json({result : true, newTrip : data.lastTrips[data.lastTrips.length -1]})
+      }
+    })
+  })
+
+  router.get("/alltrips/:username", (req, res) =>{
+    User.findOne({username : req.params.username}).then(data => {
+      if(!data){
+        res.json({result : false, error : 'user not found'})
+      }
+      else{
+        res.json({result : true, trips : data.lastTrips})
+      }
+    })
+  })
+
 
 module.exports = router;
