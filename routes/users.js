@@ -97,8 +97,6 @@ router.post("/newtrip/newstep", async (req, res) => {
   userFound.save();
 
   res.json({ result: true, steps: lastTripInArray });
-
-  
 });
 
 router.get("/newtrip/:username", (req, res) => {
@@ -120,6 +118,24 @@ router.get("/alltrips/:username", (req, res) => {
       res.json({ result: false, error: "user not found" });
     } else {
       res.json({ result: true, trips: data.lastTrips });
+    }
+  });
+});
+
+router.put("/:username", (req, res) => {
+  const newUsername = req.body.replaceUsername;
+  User.findOneAndUpdate(
+    { username: req.params.username },
+    //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
+    { $set: { username: newUsername } },
+
+    //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
+    { new: true }
+  ).then((updatedUser) => {
+    if (!updatedUser) {
+      res.json({ error: "User not found" });
+    } else {
+      res.json({ result: true, data: updatedUser });
     }
   });
 });
