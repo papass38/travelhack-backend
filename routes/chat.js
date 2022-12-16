@@ -11,7 +11,7 @@ const pusherConfig = {
   cluster: process.env.PUSHER_CLUSTER,
   useTLS: true,
 };
-const pusherClient = new Pusher(pusherConfig);
+const pusher = new Pusher(pusherConfig);
 
 const MY_APY_KEY_LOC = process.env.MY_APY_KEY_LOC;
 
@@ -46,7 +46,7 @@ router.get("/channel/:location", (req, res) => {
 
 // SEND A CHAT WITH PUSHER
 router.post("/newChat", (req, res) => {
-  pusherClient
+  pusher
     .trigger(req.body.channel, "message", {
       name: req.body.name,
       channel: req.body.channel,
@@ -60,6 +60,24 @@ router.post("/newChat", (req, res) => {
         date: req.body.date,
       }).then(() => res.json({ result: true, message: "send" }))
     );
+});
+
+// Join chat
+router.put("/newChat", (req, res) => {
+  pusher
+    .trigger(req.body.channel, "join", {
+      name: req.params.name,
+    })
+    .then(() => res.json({ result: true }));
+});
+
+// Leave chat
+router.delete("/newChat", (req, res) => {
+  pusher
+    .trigger(req.body.channel, "leave", {
+      name: req.params.name,
+    })
+    .then(() => res.json({ result: true }));
 });
 
 module.exports = router;
