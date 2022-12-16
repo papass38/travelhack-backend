@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
   password: String,
   profile: String,
   token: String,
-  lastTrips: { type: mongoose.Schema.Types.ObjectId, ref: "trips" },
+  lastTrips: [{ type: mongoose.Schema.Types.ObjectId, ref: "trips" }],
 });
 
 const User = mongoose.model("users", userSchema);
