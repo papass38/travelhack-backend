@@ -53,4 +53,25 @@ router.post("/signin", (req, res) => {
   });
 });
 
+router.post("/newtrip", (req, res) => {
+  if (
+    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+  ) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  } else {
+        User.findOneAndUpdate(
+            {username : req.body.username},
+            {$push : {lastTrips : {
+              user: req.body.username,
+              destination: req.body.destination,
+              steps: [],
+              totalBudget: req.body.budget,
+              startDate: req.body.startDate,
+              endDate: req.body.endDate,
+            } }}
+        ).then((data) => res.json({result : true, newTrip : data }))}
+    });
+
+
 module.exports = router;
