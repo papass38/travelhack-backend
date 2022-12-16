@@ -98,32 +98,7 @@ router.post("/newtrip/newstep", async (req, res) => {
 
   res.json({ result: true, steps: lastTripInArray });
 
-  //  //
-
-  // if (
-  //   !checkBody(req.body, ["username"])
-  // ) {
-  //   res.json({ result: false, error: "Missing or empty fields" });
-  //   return;
-  // } else {
-
-  //   let index = 0;
-  //   User.findOne({ username: req.body.username })
-  //     .then((data) => {
-  //       index = data.lastTrips.length;
-  //       User.update({username : req.body.username}, {
-  //         $push : {
-  //           "lastTrips.$.steps.index" : {
-  //             name : req.body.name,
-  //             latitude : req.body.latitude,
-  //             longitude : req.body.longitude,
-  //             mealBudget : req.body.mealBudget,
-  //             roomBudget : req.body.roomBudget
-  //           }
-  //         }
-  //       })
-  //     }).then(data => res.json({result : true, steps : data}))
-  //   }
+  
 });
 
 router.get("/newtrip/:username", (req, res) => {
