@@ -85,28 +85,17 @@ router.get("/:username", (req, res) => {
   });
 });
 
-// router.post("/newtrip/newstep", (req, res) => {
-//   if (
-//     !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
-//   ) {
-//     res.json({ result: false, error: "Missing or empty fields" });
-//     return;
-//   } else {
-//     findOneAndUpdate(
-//       { username: req.body.username },
-//       {
-//         $push :{
-//           lastTrips[lastTrips.length - 1].steps{
-//             name: String,
-//             latitude: String,
-//             longitude: String,
-//             mealBudget: Number,
-//             roomBudget: Number,
-//           },
-//         }
-//       }
-//     );
-//   }
-// });
+router.post("/newtrip/newstep", (req, res) => {
+  if (
+    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+  ) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  } else {
+    findOne ({username: req.body.username}).then(data => {
+      console.log(data)
+    })
+    }
+  })
 
 module.exports = router;
