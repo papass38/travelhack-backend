@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const stepSchema = mongoose.Schema({
+  token : String, 
   name : String, 
   latitude : String, 
   longitude : String, 
@@ -9,6 +10,7 @@ const stepSchema = mongoose.Schema({
 })
 
 const tripSchema = mongoose.Schema({
+  token : String, 
   user : String , 
   destination : String, 
   steps : [stepSchema], 
@@ -26,7 +28,8 @@ username: String,
   profile: String,
   token: String,
   lastTrips: [tripSchema],
-});
+
+}, {versionKey : false});
 
 
 const User = mongoose.model("users", userSchema);
