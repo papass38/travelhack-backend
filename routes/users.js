@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 
-require("../models/connection");
 const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
@@ -57,13 +56,13 @@ router.post("/signin", (req, res) => {
 
 router.post("/newtrip", (req, res) => {
   if (
-    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+    !checkBody(req.body, ["username", "token",  "destination", "startDate", "endDate"])
   ) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
     User.findOneAndUpdate(
-      { username: req.body.username },
+      { username: req.body.username, token : req.body.token },
       {
         $push: {
           lastTrips: {
@@ -84,12 +83,12 @@ router.post("/newtrip/newstep", async (req, res) => {
 
   console.log('BODY', req.body);
   
-  let update = await User.findOneAndUpdate({ username: req.body.username },  )
-
-  let userFound = await User.findOne({ username: req.body.username });
+  //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
+  console.log(req.body)
+  let userFound = await User.findOne({ username: req.body.username, token : req.body.token });
+  console.log(userFound)
   let tripsArray = userFound.lastTrips;
-
-  
+  console.log(tripsArray)
   const lastTripInArray = tripsArray[tripsArray.length - 1];
   
   lastTripInArray.steps.push({
@@ -106,7 +105,7 @@ router.post("/newtrip/newstep", async (req, res) => {
 });
 
 router.get("/newtrip/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
+  User.findOne({ username: req.params.username, token : req.body.token }).then((data) => {
     if (!data) {
       res.json({ result: false, error: "user not found" });
     } else {
@@ -124,6 +123,24 @@ router.get("/alltrips/:username", (req, res) => {
       res.json({ result: false, error: "user not found" });
     } else {
       res.json({ result: true, trips: data.lastTrips });
+    }
+  });
+});
+
+router.put("/:username", (req, res) => {
+  const newUsername = req.body.replaceUsername;
+  User.findOneAndUpdate(
+    { username: req.params.username },
+    //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
+    { $set: { username: newUsername } },
+
+    //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
+    { new: true }
+  ).then((updatedUser) => {
+    if (!updatedUser) {
+      res.json({ error: "User not found" });
+    } else {
+      res.json({ result: true, data: updatedUser });
     }
   });
 });
