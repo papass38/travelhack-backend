@@ -121,6 +121,12 @@ router.get("/alltrips/:username", (req, res) => {
   });
 });
 
+router.get("/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    res.json({ result: true, user: data });
+  });
+});
+
 router.put("/:username", (req, res) => {
   const newUsername = req.body.replaceUsername;
   User.findOneAndUpdate(
