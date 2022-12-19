@@ -56,13 +56,13 @@ router.post("/signin", (req, res) => {
 
 router.post("/newtrip", (req, res) => {
   if (
-    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+    !checkBody(req.body, ["username", "token",  "destination", "startDate", "endDate"])
   ) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
     User.findOneAndUpdate(
-      { username: req.body.username },
+      { username: req.body.username, token : req.body.token },
       {
         $push: {
           lastTrips: {
@@ -83,12 +83,12 @@ router.post("/newtrip/newstep", async (req, res) => {
 
   console.log('BODY', req.body);
   
-  let update = await User.findOneAndUpdate({ username: req.body.username },  )
-
-  let userFound = await User.findOne({ username: req.body.username });
+  //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
+  console.log(req.body)
+  let userFound = await User.findOne({ username: req.body.username, token : req.body.token });
+  console.log(userFound)
   let tripsArray = userFound.lastTrips;
-
-  
+  console.log(tripsArray)
   const lastTripInArray = tripsArray[tripsArray.length - 1];
   
   lastTripInArray.steps.push({
@@ -105,7 +105,7 @@ router.post("/newtrip/newstep", async (req, res) => {
 });
 
 router.get("/newtrip/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
+  User.findOne({ username: req.params.username, token : req.body.token }).then((data) => {
     if (!data) {
       res.json({ result: false, error: "user not found" });
     } else {

@@ -11,6 +11,7 @@ const stepSchema = mongoose.Schema({
 
 const tripSchema = mongoose.Schema({
   token : String, 
+  username : String,
   user : String , 
   destination : String, 
   steps : [stepSchema], 
