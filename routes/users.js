@@ -5,7 +5,7 @@ const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
-const { findOneAndUpdate } = require("../models/users");
+
 
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
@@ -45,6 +45,7 @@ router.post("/signin", (req, res) => {
   }
 
   User.findOne({ username: req.body.username }).then((data) => {
+    console.log(req.body)
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token });
     } else {
@@ -73,18 +74,23 @@ router.post("/newtrip", (req, res) => {
             endDate: req.body.endDate,
           },
         },
-      }
+      },
     ).then((data) => res.json({ result: true, newTrip: data }));
   }
 });
 
 router.post("/newtrip/newstep", async (req, res) => {
-  const userFound = await User.findOne({ username: req.body.username });
-  console.log(userFound);
-  const tripsArray = userFound.lastTrips;
 
+  console.log('BODY', req.body);
+  
+  let update = await User.findOneAndUpdate({ username: req.body.username },  )
+
+  let userFound = await User.findOne({ username: req.body.username });
+  let tripsArray = userFound.lastTrips;
+
+  
   const lastTripInArray = tripsArray[tripsArray.length - 1];
-
+  
   lastTripInArray.steps.push({
     name: req.body.name,
     latitude: req.body.latitude,
@@ -93,9 +99,9 @@ router.post("/newtrip/newstep", async (req, res) => {
     roomBudget: req.body.roomBudget,
   });
 
-  userFound.save();
+  const savedUser = await userFound.save();
 
-  res.json({ result: true, steps: lastTripInArray });
+  res.json({ result: true, steps: lastTripInArray, savedUser });
 });
 
 router.get("/newtrip/:username", (req, res) => {
