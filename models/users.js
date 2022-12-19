@@ -30,7 +30,7 @@ const userSchema = mongoose.Schema({
   token: String,
   lastTrips: [tripSchema],
 
-}, {versionKey : false});
+});
 
 const User = mongoose.model("users", userSchema);
 module.exports = User;
