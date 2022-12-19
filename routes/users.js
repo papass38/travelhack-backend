@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
 
-require("../models/connection");
 const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
@@ -97,8 +96,6 @@ router.post("/newtrip/newstep", async (req, res) => {
   userFound.save();
 
   res.json({ result: true, steps: lastTripInArray });
-
-  
 });
 
 router.get("/newtrip/:username", (req, res) => {
