@@ -20,7 +20,7 @@ const tripSchema = mongoose.Schema({
 });
 
 const userSchema = mongoose.Schema({
-username: String,
+  username: String,
   firstName: String,
   lastName: String,
   email: String,
@@ -30,7 +30,6 @@ username: String,
   lastTrips: [tripSchema],
 
 }, {versionKey : false});
-
 
 const User = mongoose.model("users", userSchema);
 module.exports = User;
