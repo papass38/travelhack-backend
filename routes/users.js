@@ -5,7 +5,6 @@ const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
-const { findOneAndUpdate } = require("../models/users");
 
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
@@ -45,6 +44,7 @@ router.post("/signin", (req, res) => {
   }
 
   User.findOne({ username: req.body.username }).then((data) => {
+    console.log(req.body);
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token });
     } else {
@@ -55,13 +55,19 @@ router.post("/signin", (req, res) => {
 
 router.post("/newtrip", (req, res) => {
   if (
-    !checkBody(req.body, ["username", "destination", "startDate", "endDate"])
+    !checkBody(req.body, [
+      "username",
+      "token",
+      "destination",
+      "startDate",
+      "endDate",
+    ])
   ) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
     User.findOneAndUpdate(
-      { username: req.body.username },
+      { username: req.body.username, token: req.body.token },
       {
         $push: {
           lastTrips: {
@@ -79,10 +85,19 @@ router.post("/newtrip", (req, res) => {
 });
 
 router.post("/newtrip/newstep", async (req, res) => {
-  const userFound = await User.findOne({ username: req.body.username });
-  console.log(userFound);
-  const tripsArray = userFound.lastTrips;
+  console.log("BODY", req.body);
 
+  console.log("BODY", req.body);
+
+  //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
+  console.log(req.body);
+  let userFound = await User.findOne({
+    username: req.body.username,
+    token: req.body.token,
+  });
+  console.log(userFound);
+  let tripsArray = userFound.lastTrips;
+  console.log(tripsArray);
   const lastTripInArray = tripsArray[tripsArray.length - 1];
 
   lastTripInArray.steps.push({
@@ -93,22 +108,24 @@ router.post("/newtrip/newstep", async (req, res) => {
     roomBudget: req.body.roomBudget,
   });
 
-  userFound.save();
+  const savedUser = await userFound.save();
 
-  res.json({ result: true, steps: lastTripInArray });
+  res.json({ result: true, steps: lastTripInArray, savedUser });
 });
 
 router.get("/newtrip/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
-    if (!data) {
-      res.json({ result: false, error: "user not found" });
-    } else {
-      res.json({
-        result: true,
-        newTrip: data.lastTrips[data.lastTrips.length - 1],
-      });
+  User.findOne({ username: req.params.username, token: req.body.token }).then(
+    (data) => {
+      if (!data) {
+        res.json({ result: false, error: "user not found" });
+      } else {
+        res.json({
+          result: true,
+          newTrip: data.lastTrips[data.lastTrips.length - 1],
+        });
+      }
     }
-  });
+  );
 });
 
 router.get("/alltrips/:username", (req, res) => {
@@ -117,6 +134,16 @@ router.get("/alltrips/:username", (req, res) => {
       res.json({ result: false, error: "user not found" });
     } else {
       res.json({ result: true, trips: data.lastTrips });
+    }
+  });
+});
+
+router.get("/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    if (data) {
+      res.json({ result: true, user: data });
+    } else {
+      res.json({ result: false, error: "error" });
     }
   });
 });
@@ -135,6 +162,24 @@ router.put("/:username", (req, res) => {
       res.json({ error: "User not found" });
     } else {
       res.json({ result: true, data: updatedUser });
+    }
+  });
+});
+
+router.put("/email/:email", (req, res) => {
+  const newEmail = req.body.replaceEmail;
+  User.findOneAndUpdate(
+    { email: req.params.email },
+    //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
+    { $set: { email: newEmail } },
+
+    //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
+    { new: true }
+  ).then((updatedUser) => {
+    if (!updatedUser) {
+      res.json({ error: "User not found" });
+    } else {
+      res.json({ result: true, user: updatedUser });
     }
   });
 });
