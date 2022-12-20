@@ -62,22 +62,4 @@ router.post("/newChat", (req, res) => {
     );
 });
 
-// Join chat
-router.put("/newChat", (req, res) => {
-  pusher
-    .trigger(req.body.channel, "join", {
-      name: req.params.name,
-    })
-    .then(() => res.json({ result: true }));
-});
-
-// Leave chat
-router.delete("/newChat", (req, res) => {
-  pusher
-    .trigger(req.body.channel, "leave", {
-      name: req.params.name,
-    })
-    .then(() => res.json({ result: true }));
-});
-
 module.exports = router;

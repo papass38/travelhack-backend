@@ -184,4 +184,13 @@ router.put("/email/:email", (req, res) => {
   });
 });
 
+router.delete("/removeTrip/:username", (req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $pull: { lastTrips: { _id: req.body.id } } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+});
+
 module.exports = router;
