@@ -73,7 +73,7 @@ router.post("/newtrip", (req, res) => {
           lastTrips: {
             user: req.body.username,
             destination: req.body.destination,
-            steps: [],
+            steps: req.body.steps,
             totalBudget: req.body.budget,
             startDate: req.body.startDate,
             endDate: req.body.endDate,
