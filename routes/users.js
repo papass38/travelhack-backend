@@ -25,6 +25,7 @@ router.post("/signup", (req, res) => {
         password: hash,
         token: uid2(32),
         lastTrips: [],
+        favorites: [],
       });
 
       newUser.save().then((newDoc) => {
@@ -61,8 +62,8 @@ router.post("/newtrip", (req, res) => {
       "destination",
       "startDate",
       "endDate",
-    ]))
-   {
+    ])
+  ) {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
@@ -85,7 +86,6 @@ router.post("/newtrip", (req, res) => {
 });
 
 router.post("/newtrip/newstep", async (req, res) => {
-
   //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
 
   let userFound = await User.findOne({
@@ -96,7 +96,7 @@ router.post("/newtrip/newstep", async (req, res) => {
   let tripsArray = userFound.lastTrips;
 
   const lastTripInArray = tripsArray[tripsArray.length - 1];
-  
+
   lastTripInArray.steps.push({
     name: req.body.name,
     latitude: req.body.latitude,
@@ -190,4 +190,21 @@ router.delete("/removeTrip/:username", (req, res) => {
   });
 });
 
+router.post("/addFavorite/:username", (req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $push: { favorites:{name: req.body.name} } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+});
+
+router.delete('/removeFavorite/:username' ,(req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $pull: { favorites:{name: req.body.name} } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+})
 module.exports = router;
