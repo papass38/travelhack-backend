@@ -61,8 +61,8 @@ router.post("/newtrip", (req, res) => {
       "destination",
       "startDate",
       "endDate",
-    ])
-  ) {
+    ]))
+   {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
@@ -85,21 +85,18 @@ router.post("/newtrip", (req, res) => {
 });
 
 router.post("/newtrip/newstep", async (req, res) => {
-  console.log("BODY", req.body);
-
-  console.log("BODY", req.body);
 
   //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
-  console.log(req.body);
+
   let userFound = await User.findOne({
     username: req.body.username,
     token: req.body.token,
   });
-  console.log(userFound);
-  let tripsArray = userFound.lastTrips;
-  console.log(tripsArray);
-  const lastTripInArray = tripsArray[tripsArray.length - 1];
 
+  let tripsArray = userFound.lastTrips;
+
+  const lastTripInArray = tripsArray[tripsArray.length - 1];
+  
   lastTripInArray.steps.push({
     name: req.body.name,
     latitude: req.body.latitude,
@@ -181,6 +178,15 @@ router.put("/email/:email", (req, res) => {
     } else {
       res.json({ result: true, user: updatedUser });
     }
+  });
+});
+
+router.delete("/removeTrip/:username", (req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $pull: { lastTrips: { _id: req.body.id } } }
+  ).then((data) => {
+    res.json({ result: true, data });
   });
 });
 
