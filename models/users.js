@@ -24,6 +24,10 @@ const tripSchema = mongoose.Schema({
   endDate: Date,
 });
 
+const favoriteSchema = mongoose.Schema({
+  name: String,
+});
+
 const userSchema = mongoose.Schema({
   username: String,
   firstName: String,
@@ -34,6 +38,7 @@ const userSchema = mongoose.Schema({
   token: String,
   lastTrips: [tripSchema],
   todo: [todoSchema],
+  favorites: [favoriteSchema],
 });
 
 const User = mongoose.model("users", userSchema);

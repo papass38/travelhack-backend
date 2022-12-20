@@ -25,6 +25,7 @@ router.post("/signup", (req, res) => {
         password: hash,
         token: uid2(32),
         lastTrips: [],
+        favorites: [],
       });
 
       newUser.save().then((newDoc) => {
@@ -106,14 +107,14 @@ router.post("/newtrip/newstep", async (req, res) => {
   // console.log("BODY", req.body);
 
   //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
-  console.log(req.body);
+
   let userFound = await User.findOne({
     username: req.body.username,
     token: req.body.token,
   });
-  console.log(userFound);
+
   let tripsArray = userFound.lastTrips;
-  console.log(tripsArray);
+
   const lastTripInArray = tripsArray[tripsArray.length - 1];
 
   lastTripInArray.steps.push({
@@ -200,4 +201,30 @@ router.put("/email/:email", (req, res) => {
   });
 });
 
+router.delete("/removeTrip/:username", (req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $pull: { lastTrips: { _id: req.body.id } } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+});
+
+router.post("/addFavorite/:username", (req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $push: { favorites: { name: req.body.name } } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+});
+
+router.delete("/removeFavorite/:username", (req, res) => {
+  User.updateOne(
+    { username: req.params.username },
+    { $pull: { favorites: { name: req.body.name } } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+});
 module.exports = router;
