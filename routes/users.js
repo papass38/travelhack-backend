@@ -61,8 +61,8 @@ router.post("/newtrip", (req, res) => {
       "destination",
       "startDate",
       "endDate",
-    ])
-  ) {
+    ]))
+   {
     res.json({ result: false, error: "Missing or empty fields" });
     return;
   } else {
@@ -73,7 +73,7 @@ router.post("/newtrip", (req, res) => {
           lastTrips: {
             user: req.body.username,
             destination: req.body.destination,
-            steps: [],
+            steps: req.body.steps,
             totalBudget: req.body.budget,
             startDate: req.body.startDate,
             endDate: req.body.endDate,
@@ -85,21 +85,18 @@ router.post("/newtrip", (req, res) => {
 });
 
 router.post("/newtrip/newstep", async (req, res) => {
-  console.log("BODY", req.body);
-
-  console.log("BODY", req.body);
 
   //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
-  console.log(req.body);
+
   let userFound = await User.findOne({
     username: req.body.username,
     token: req.body.token,
   });
-  console.log(userFound);
-  let tripsArray = userFound.lastTrips;
-  console.log(tripsArray);
-  const lastTripInArray = tripsArray[tripsArray.length - 1];
 
+  let tripsArray = userFound.lastTrips;
+
+  const lastTripInArray = tripsArray[tripsArray.length - 1];
+  
   lastTripInArray.steps.push({
     name: req.body.name,
     latitude: req.body.latitude,
