@@ -84,10 +84,26 @@ router.post("/newtrip", (req, res) => {
   }
 });
 
-router.post("/newtrip/newstep", async (req, res) => {
-  console.log("BODY", req.body);
+router.post("/newTodo/:username", (req, res) => {
+  console.log("user", req.body);
+  User.findOneAndUpdate(
+    { username: req.params.username },
+    {
+      $push: {
+        todo: {
+          task: req.body.task,
+        },
+      },
+    }
+  ).then((data) => {
+    res.json({ result: true, user: data });
+  });
+});
 
-  console.log("BODY", req.body);
+router.post("/newtrip/newstep", async (req, res) => {
+  // console.log("BODY", req.body);
+
+  // console.log("BODY", req.body);
 
   //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
   console.log(req.body);
