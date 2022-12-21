@@ -61,6 +61,8 @@ router.post("/signin", (req, res) => {
   });
 });
 
+// post a new trip in db from the FinalTravelScreen
+
 router.post("/newtrip", (req, res) => {
   if (
     !checkBody(req.body, [
@@ -77,6 +79,7 @@ router.post("/newtrip", (req, res) => {
     User.findOneAndUpdate(
       { username: req.body.username, token: req.body.token },
       {
+        // because the trips are in an array of subdoc in the documents  user, we have to use $push to add the trip in that array. 
         $push: {
           lastTrips: {
             user: req.body.username,
@@ -108,35 +111,31 @@ router.post("/newTodo/:username", (req, res) => {
   });
 });
 
-router.post("/newtrip/newstep", async (req, res) => {
-  // console.log("BODY", req.body);
+// router.post("/newtrip/newstep", async (req, res) => {
 
-  // console.log("BODY", req.body);
+//   let userFound = await User.findOne({
+//     username: req.body.username,
+//     token: req.body.token,
+//   });
 
-  //let update = await User.findOneAndUpdate({ username: req.body.username, token : req.body.token },  )
+//   let tripsArray = userFound.lastTrips;
 
-  let userFound = await User.findOne({
-    username: req.body.username,
-    token: req.body.token,
-  });
+//   const lastTripInArray = tripsArray[tripsArray.length - 1];
 
-  let tripsArray = userFound.lastTrips;
+//   lastTripInArray.steps.push({
+//     name: req.body.name,
+//     latitude: req.body.latitude,
+//     longitude: req.body.longitude,
+//     mealBudget: req.body.mealBudget,
+//     roomBudget: req.body.roomBudget,
+//   });
 
-  const lastTripInArray = tripsArray[tripsArray.length - 1];
+//   const savedUser = await userFound.save();
 
-  lastTripInArray.steps.push({
-    name: req.body.name,
-    latitude: req.body.latitude,
-    longitude: req.body.longitude,
-    mealBudget: req.body.mealBudget,
-    roomBudget: req.body.roomBudget,
-  });
+//   res.json({ result: true, steps: lastTripInArray, savedUser });
+// });
 
-  const savedUser = await userFound.save();
-
-  res.json({ result: true, steps: lastTripInArray, savedUser });
-});
-
+// Get the las trip added by a specific user
 router.get("/newtrip/:username", (req, res) => {
   User.findOne({ username: req.params.username, token: req.body.token }).then(
     (data) => {
@@ -152,6 +151,7 @@ router.get("/newtrip/:username", (req, res) => {
   );
 });
 
+// Get all the trips of the specific user
 router.get("/alltrips/:username", (req, res) => {
   User.findOne({ username: req.params.username }).then((data) => {
     if (!data) {
@@ -206,6 +206,7 @@ router.put("/email/:email", (req, res) => {
   });
 });
 
+// remove a trip based on his username and the id of the trip
 router.delete("/removeTrip/:username", (req, res) => {
   User.updateOne(
     { username: req.params.username },
