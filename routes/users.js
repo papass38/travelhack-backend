@@ -6,6 +6,12 @@ const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
+router.get("/all", (req, res) => {
+  User.find({}).then((data) => {
+    res.json(data);
+  });
+});
+
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["username", "password"])) {
     res.json({ result: false, error: "Missing or empty fields" });
@@ -22,6 +28,7 @@ router.post("/signup", (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
+        photo: req.body.photo,
         password: hash,
         token: uid2(32),
         lastTrips: [],
@@ -29,7 +36,7 @@ router.post("/signup", (req, res) => {
       });
 
       newUser.save().then((newDoc) => {
-        res.json({ result: true, token: newDoc.token });
+        res.json({ result: true, user: newDoc });
       });
     } else {
       // User already exists in database
@@ -47,7 +54,7 @@ router.post("/signin", (req, res) => {
   User.findOne({ username: req.body.username }).then((data) => {
     console.log(req.body);
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      res.json({ result: true, token: data.token });
+      res.json({ result: true, user: data });
     } else {
       res.json({ result: false, error: "User not found or wrong password" });
     }
@@ -166,19 +173,17 @@ router.get("/:username", (req, res) => {
 });
 
 router.put("/:username", (req, res) => {
-  const newUsername = req.body.replaceUsername;
   User.findOneAndUpdate(
     { username: req.params.username },
     //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
-    { $set: { username: newUsername } },
-
+    { $set: { username: req.body.replaceUsername, photo: req.body.photo } },
     //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
     { new: true }
   ).then((updatedUser) => {
     if (!updatedUser) {
       res.json({ error: "User not found" });
     } else {
-      res.json({ result: true, data: updatedUser });
+      res.json({ result: true, user: updatedUser });
     }
   });
 });

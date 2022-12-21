@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema({
   lastName: String,
   email: String,
   password: String,
-  profile: String,
+  photo: String,
   token: String,
   lastTrips: [tripSchema],
   todo: [todoSchema],
