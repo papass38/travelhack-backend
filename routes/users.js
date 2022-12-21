@@ -85,19 +85,25 @@ router.post("/newtrip", (req, res) => {
   }
 });
 
-router.post("/newTodo/:username", (req, res) => {
+router.post("/newTodo/:username/:index", (req, res) => {
   console.log("user", req.body);
   User.findOneAndUpdate(
     { username: req.params.username },
     {
       $push: {
-        todo: {
+        [`lastTrips.${req.params.index}.todo`]: {
           task: req.body.task,
         },
       },
     }
   ).then((data) => {
-    res.json({ result: true, user: data });
+    res.json({ result: true, user: data.todo });
+  });
+});
+
+router.get("/todo/:username", (req, res) => {
+  User.findOne({ username: req.params.username }).then((data) => {
+    res.json({ result: true, data: data.lastTrips[0].todo });
   });
 });
 
@@ -131,18 +137,16 @@ router.post("/newtrip/newstep", async (req, res) => {
 });
 
 router.get("/newtrip/:username", (req, res) => {
-  User.findOne({ username: req.params.username, token: req.body.token }).then(
-    (data) => {
-      if (!data) {
-        res.json({ result: false, error: "user not found" });
-      } else {
-        res.json({
-          result: true,
-          newTrip: data.lastTrips[data.lastTrips.length - 1],
-        });
-      }
+  User.findOne({ username: req.params.username }).then((data) => {
+    if (!data) {
+      res.json({ result: false, error: "user not found" });
+    } else {
+      res.json({
+        result: true,
+        newTrip: data.lastTrips[data.lastTrips.length - 1],
+      });
     }
-  );
+  });
 });
 
 router.get("/alltrips/:username", (req, res) => {

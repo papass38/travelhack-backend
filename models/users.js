@@ -22,6 +22,7 @@ const tripSchema = mongoose.Schema({
   totalBudget: String,
   startDate: Date,
   endDate: Date,
+  todo: [todoSchema],
 });
 
 const favoriteSchema = mongoose.Schema({
@@ -37,7 +38,6 @@ const userSchema = mongoose.Schema({
   profile: String,
   token: String,
   lastTrips: [tripSchema],
-  todo: [todoSchema],
   favorites: [favoriteSchema],
 });
 
