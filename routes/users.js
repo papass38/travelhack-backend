@@ -119,30 +119,6 @@ router.get("/todo/:username", (req, res) => {
   });
 });
 
-// router.post("/newtrip/newstep", async (req, res) => {
-
-//   let userFound = await User.findOne({
-//     username: req.body.username,
-//     token: req.body.token,
-//   });
-
-//   let tripsArray = userFound.lastTrips;
-
-//   const lastTripInArray = tripsArray[tripsArray.length - 1];
-
-//   lastTripInArray.steps.push({
-//     name: req.body.name,
-//     latitude: req.body.latitude,
-//     longitude: req.body.longitude,
-//     mealBudget: req.body.mealBudget,
-//     roomBudget: req.body.roomBudget,
-//   });
-
-//   const savedUser = await userFound.save();
-
-//   res.json({ result: true, steps: lastTripInArray, savedUser });
-// });
-
 // Get the las trip added by a specific user
 router.get("/newtrip/:username", (req, res) => {
   User.findOne({ username: req.params.username }).then((data) => {
