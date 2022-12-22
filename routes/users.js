@@ -214,8 +214,8 @@ router.put("/photo/:username", async (req, res) => {
         res.json({ result: true, user: updatedUser });
       }
     });
+    fs.unlinkSync(photoPath);
   }
-  fs.unlinkSync(photoPath);
 });
 
 router.put("/email/:email", (req, res) => {
