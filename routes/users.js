@@ -79,7 +79,7 @@ router.post("/newtrip", (req, res) => {
     User.findOneAndUpdate(
       { username: req.body.username, token: req.body.token },
       {
-        // because the trips are in an array of subdoc in the documents  user, we have to use $push to add the trip in that array. 
+        // because the trips are in an array of subdoc in the documents  user, we have to use $push to add the trip in that array.
         $push: {
           lastTrips: {
             user: req.body.username,
@@ -215,6 +215,19 @@ router.delete("/removeTrip/:username", (req, res) => {
   User.updateOne(
     { username: req.params.username },
     { $pull: { lastTrips: { _id: req.body.id } } }
+  ).then((data) => {
+    res.json({ result: true, data });
+  });
+});
+
+//Cette route utilise la méthode DELETE pour supprimer une tâche spécifiée d'un utilisateur spécifié dans la base de données.
+router.delete("/removeTodo/:username", (req, res) => {
+  // Mettre à jour l'utilisateur en utilisant l'opérateur $pull
+  User.updateOne(
+    { username: req.params.username },
+    //Le corps de la requête (req.body) est utilisé pour obtenir la tâche à supprimer
+    { $pull: { "lastTrips.0.todo": { task: req.body.task } } }
+    //l'opérateur de mise à jour $pull est utilisé pour retirer l'élément de la liste de tâches de l'utilisateur
   ).then((data) => {
     res.json({ result: true, data });
   });
