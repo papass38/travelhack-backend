@@ -4,9 +4,9 @@ const User = require("../models/users");
 const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
-const cloudinary = require("cloudinary").v2
-const uniqid = require("uniqid")
-const fs = require("fs")
+const cloudinary = require("cloudinary").v2;
+const uniqid = require("uniqid");
+const fs = require("fs");
 
 router.get("/all", (req, res) => {
   User.find({}).then((data) => {
@@ -182,7 +182,7 @@ router.put("/info/:username", (req, res) => {
   User.findOneAndUpdate(
     { username: req.params.username },
     //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
-    { $set: { username: req.body.replaceUsername} },
+    { $set: { username: req.body.replaceUsername } },
     //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
     { new: true }
   ).then((updatedUser) => {
@@ -195,16 +195,16 @@ router.put("/info/:username", (req, res) => {
 });
 
 router.put("/photo/:username", async (req, res) => {
-  const photoPath = `./tmp/${uniqid()}.jpg`
-  console.log("req.file", req.files.userPhoto)
-  const resultMove = await req.files.userPhoto.mv(photoPath)
-  console.log("resultMove", resultMove)
-  if(!resultMove){
-    const resultCloudinary = await cloudinary.uploader.upload(photoPath)
+  const photoPath = `./tmp/${uniqid()}.jpg`;
+  console.log("req.file", req.files.userPhoto);
+  const resultMove = await req.files.userPhoto.mv(photoPath);
+  console.log("resultMove", resultMove);
+  if (!resultMove) {
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
     User.findOneAndUpdate(
       { username: req.params.username },
       //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
-      { $set: { photo: resultCloudinary.secure_url} },
+      { $set: { photo: resultCloudinary.secure_url } },
       //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
       { new: true }
     ).then((updatedUser) => {
@@ -215,9 +215,8 @@ router.put("/photo/:username", async (req, res) => {
       }
     });
   }
-  fs.unlinkSync(photoPath)
+  fs.unlinkSync(photoPath);
 });
-
 
 router.put("/email/:email", (req, res) => {
   const newEmail = req.body.replaceEmail;
