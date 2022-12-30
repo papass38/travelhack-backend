@@ -113,8 +113,8 @@ router.post("/newTodo/:username/:index", (req, res) => {
   });
 });
 
-router.get("/todo/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
+router.get("/todo/:token", (req, res) => {
+  User.findOne({ token: req.params.token }).then((data) => {
     res.json({ result: true, data: data.lastTrips[0].todo });
   });
 });
@@ -134,8 +134,8 @@ router.get("/newtrip/:username", (req, res) => {
 });
 
 // Get all the trips of the specific user
-router.get("/alltrips/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
+router.get("/alltrips/:token", (req, res) => {
+  User.findOne({ token: req.params.token }).then((data) => {
     if (!data) {
       res.json({ result: false, error: "user not found" });
     } else {
@@ -144,8 +144,8 @@ router.get("/alltrips/:username", (req, res) => {
   });
 });
 
-router.get("/:username", (req, res) => {
-  User.findOne({ username: req.params.username }).then((data) => {
+router.get("/:token", (req, res) => {
+  User.findOne({ token: req.params.token }).then((data) => {
     if (data) {
       res.json({ result: true, user: data });
     } else {
@@ -154,9 +154,9 @@ router.get("/:username", (req, res) => {
   });
 });
 
-router.put("/info/:username", (req, res) => {
+router.put("/info/:token", (req, res) => {
   User.findOneAndUpdate(
-    { username: req.params.username },
+    { token: req.params.token },
     //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
     { $set: { username: req.body.replaceUsername } },
     //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
@@ -170,7 +170,7 @@ router.put("/info/:username", (req, res) => {
   });
 });
 
-router.put("/photo/:username", async (req, res) => {
+router.put("/photo/:token", async (req, res) => {
   const photoPath = `./tmp/${uniqid()}.jpg`;
   console.log("req.file", req.files.userPhoto);
   const resultMove = await req.files.userPhoto.mv(photoPath);
@@ -178,7 +178,7 @@ router.put("/photo/:username", async (req, res) => {
   if (!resultMove) {
     const resultCloudinary = await cloudinary.uploader.upload(photoPath);
     User.findOneAndUpdate(
-      { username: req.params.username },
+      { token: req.params.token },
       //The $set operator is a MongoDB operator that is used to update specific fields in a document. It replaces the value of a field with the specified value.
       { $set: { photo: resultCloudinary.secure_url } },
       //The new: true option is used in MongoDB to specify that the updated document should be returned in the response.
@@ -213,9 +213,9 @@ router.put("/email/:email", (req, res) => {
 });
 
 // remove a trip based on his username and the id of the trip
-router.delete("/removeTrip/:username", (req, res) => {
+router.delete("/removeTrip/:token", (req, res) => {
   User.updateOne(
-    { username: req.params.username },
+    { token: req.params.token },
     { $pull: { lastTrips: { _id: req.body.id } } }
   ).then((data) => {
     res.json({ result: true, data });
@@ -223,10 +223,10 @@ router.delete("/removeTrip/:username", (req, res) => {
 });
 
 //Cette route utilise la méthode DELETE pour supprimer une tâche spécifiée d'un utilisateur spécifié dans la base de données.
-router.delete("/removeTodo/:username", (req, res) => {
+router.delete("/removeTodo/:token", (req, res) => {
   // Mettre à jour l'utilisateur en utilisant l'opérateur $pull
   User.updateOne(
-    { username: req.params.username },
+    { token: req.params.token },
     //Le corps de la requête (req.body) est utilisé pour obtenir la tâche à supprimer
     { $pull: { "lastTrips.0.todo": { task: req.body.task } } }
     //l'opérateur de mise à jour $pull est utilisé pour retirer l'élément de la liste de tâches de l'utilisateur
@@ -235,18 +235,18 @@ router.delete("/removeTodo/:username", (req, res) => {
   });
 });
 
-router.post("/addFavorite/:username", (req, res) => {
+router.post("/addFavorite/:token", (req, res) => {
   User.updateOne(
-    { username: req.params.username },
+    { token: req.params.token },
     { $push: { favorites: { name: req.body.name } } }
   ).then((data) => {
     res.json({ result: true, data });
   });
 });
 
-router.delete("/removeFavorite/:username", (req, res) => {
+router.delete("/removeFavorite/:token", (req, res) => {
   User.updateOne(
-    { username: req.params.username },
+    { token: req.params.token },
     { $pull: { favorites: { name: req.body.name } } }
   ).then((data) => {
     res.json({ result: true, data });

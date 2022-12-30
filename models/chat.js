@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const chatSchema = mongoose.Schema({
-  name: String,
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
   channel: String,
   message: String,
   date: Date,
