@@ -3,6 +3,7 @@ var router = express.Router();
 const fetch = require("node-fetch");
 const Pusher = require("pusher");
 const Chat = require("../models/chat");
+const User = require("../models/users");
 
 const pusherConfig = {
   appId: process.env.PUSHER_APP_ID,
@@ -35,31 +36,35 @@ router.post("/location", (req, res) => {
 //GET ALL CHAT FROM A CHANNEL
 router.get("/channel/:location", (req, res) => {
   console.log(req.params.location);
-  Chat.find({ channel: req.params.location }).then((data) => {
-    if (data) {
-      res.json({ result: true, message: data });
-    } else {
-      res.json({ result: false });
-    }
-  });
+  Chat.find({ channel: req.params.location })
+    .populate("user")
+    .then((data) => {
+      if (data) {
+        res.json({ result: true, message: data });
+      } else {
+        res.json({ result: false });
+      }
+    });
 });
 
 // SEND A CHAT WITH PUSHER
-router.post("/newChat", (req, res) => {
-  pusher
-    .trigger(req.body.channel, "message", {
-      name: req.body.name,
-      channel: req.body.channel,
-      message: req.body.message,
-    })
-    .then(() =>
-      Chat.create({
-        name: req.body.name,
+router.post("/newChat/:token", (req, res) => {
+  User.findOne({ token: req.params.token }).then((data) => {
+    pusher
+      .trigger(req.body.channel, "message", {
+        user: data,
         channel: req.body.channel,
         message: req.body.message,
-        date: req.body.date,
-      }).then(() => res.json({ result: true, message: "send" }))
-    );
+      })
+      .then(() =>
+        Chat.create({
+          user: data._id,
+          channel: req.body.channel,
+          message: req.body.message,
+          date: req.body.date,
+        }).then(() => res.json({ result: true, message: "send" }))
+      );
+  });
 });
 
 module.exports = router;
