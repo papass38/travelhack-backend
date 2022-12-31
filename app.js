@@ -11,8 +11,8 @@ var usersRouter = require("./routes/users");
 var chatRouter = require("./routes/chat");
 var app = express();
 
-const fileUpload = require("express-fileUpload")
-app.use(fileUpload())
+const fileUpload = require("express-fileUpload");
+app.use(fileUpload());
 
 const cors = require("cors");
 app.use(cors());
