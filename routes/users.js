@@ -97,28 +97,6 @@ router.post("/newtrip", (req, res) => {
   }
 });
 
-router.post("/newTodo/:username/:index", (req, res) => {
-  console.log("user", req.body);
-  User.findOneAndUpdate(
-    { username: req.params.username },
-    {
-      $push: {
-        [`lastTrips.${req.params.index}.todo`]: {
-          task: req.body.task,
-        },
-      },
-    }
-  ).then((data) => {
-    res.json({ result: true, user: data.todo });
-  });
-});
-
-router.get("/todo/:token", (req, res) => {
-  User.findOne({ token: req.params.token }).then((data) => {
-    res.json({ result: true, data: data.lastTrips[0].todo });
-  });
-});
-
 // Get the las trip added by a specific user
 router.get("/newtrip/:username", (req, res) => {
   User.findOne({ username: req.params.username }).then((data) => {
@@ -222,16 +200,58 @@ router.delete("/removeTrip/:token", (req, res) => {
   });
 });
 
-//Cette route utilise la méthode DELETE pour supprimer une tâche spécifiée d'un utilisateur spécifié dans la base de données.
-router.delete("/removeTodo/:token", (req, res) => {
-  // Mettre à jour l'utilisateur en utilisant l'opérateur $pull
-  User.updateOne(
-    { token: req.params.token },
-    //Le corps de la requête (req.body) est utilisé pour obtenir la tâche à supprimer
-    { $pull: { "lastTrips.0.todo": { task: req.body.task } } }
-    //l'opérateur de mise à jour $pull est utilisé pour retirer l'élément de la liste de tâches de l'utilisateur
+router.get("/todo/:token/:todoId", (req, res) => {
+  User.findOne(
+    {
+      token: req.params.token,
+      "lastTrips._id": req.params.todoId,
+    },
+    { "lastTrips.$": 1 }
   ).then((data) => {
-    res.json({ result: true, data });
+    res.json({
+      result: true,
+      todo: data.lastTrips[0].todo,
+    });
+  });
+});
+
+router.post("/newTodo/:token/:todoId", (req, res) => {
+  User.findOneAndUpdate(
+    { token: req.params.token, "lastTrips._id": req.params.todoId },
+    {
+      $push: {
+        "lastTrips.$.todo": { task: req.body.newTodo },
+      },
+    },
+    { returnOriginal: false }
+  ).then((data) => {
+    const todoData = data.lastTrips.find(
+      (e) => e._id == req.params.todoId
+    ).todo;
+    res.json({
+      result: true,
+      todoData: todoData,
+    });
+  });
+});
+
+router.delete("/removeTodo/:token/:todoId", (req, res) => {
+  User.findOneAndUpdate(
+    { token: req.params.token, "lastTrips._id": req.params.todoId },
+    {
+      $pull: {
+        "lastTrips.$.todo": { task: req.body.newTodo },
+      },
+    },
+    { returnOriginal: false }
+  ).then((data) => {
+    const todoData = data.lastTrips.find(
+      (e) => e._id == req.params.todoId
+    ).todo;
+    res.json({
+      result: true,
+      todoData: todoData,
+    });
   });
 });
 
