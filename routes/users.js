@@ -206,6 +206,7 @@ router.get("/todo/:token/:todoId", (req, res) => {
       token: req.params.token,
       "lastTrips._id": req.params.todoId,
     },
+    // only the first element in the "lastTrips" array that matches the condition specified in the findOne() method should be returned by using the $ operator and the value 1.
     { "lastTrips.$": 1 }
   ).then((data) => {
     res.json({
@@ -223,8 +224,10 @@ router.post("/newTodo/:token/:todoId", (req, res) => {
         "lastTrips.$.todo": { task: req.body.newTodo },
       },
     },
+    // return the document only after beeing modified
     { returnOriginal: false }
   ).then((data) => {
+    // data return the document user but we need to return only the todo that match the id.
     const todoData = data.lastTrips.find(
       (e) => e._id == req.params.todoId
     ).todo;
